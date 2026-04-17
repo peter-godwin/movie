@@ -1,0 +1,40 @@
+name: Gemini Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  gemini-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # To get the diff with the base branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install google-generativeai
+
+      - name: Perform Gemini Review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          # Get the diff between the PR branch and the target branch
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          cat pr_diff.txt | python scripts/gemini_review.py > review_output.md
+
+      - name: Comment on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: review_output.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,40 @@
+# Core API
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+httpx==0.27.0
+python-dotenv==1.0.1
+
+# Database / ORM
+SQLAlchemy==2.0.45
+asyncpg==0.29.0
+psycopg2-binary==2.9.11
+alembic==1.18.1
+greenlet==3.3.0
+
+# Config / utils
+pydantic-settings==2.2.1
+typing_extensions==4.15.0
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+email-validator==2.1.0
+python-multipart==0.0.22
+
+# Email
+fastapi-mail==1.4.1
+
+# AI & Vector Search
+google-generativeai==0.8.4
+opencv-python-headless==4.9.0.80
+tenacity==8.2.3
+faiss-cpu==1.8.0
+sentence-transformers==2.7.0
+transformers==4.40.0
+torch==2.2.2 --index-url https://download.pytorch.org/whl/cpu
+
+# Alembic deps
+Mako==1.3.10
+MarkupSafe==3.0.3
+tomli==2.4.0

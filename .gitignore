@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files
+.env
+
+# Secrets
+*.json
+serviceAccountKey.json
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: moviz
+          POSTGRES_PASSWORD: moviz
+          POSTGRES_DB: movizdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql+asyncpg://moviz:moviz@localhost:5432/movizdb
+      ENV: testing
+      DEBUG: True
+      SECRET_KEY: testing-secret-key-do-not-use-in-production
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff mypy pytest pytest-asyncio httpx
+
+      - name: Lint with Ruff
+        run: ruff check .
+
+      - name: Type check with Mypy
+        run: mypy app
+
+      - name: Run migrations
+        run: |
+          # Use psycopg2 URL for migrations
+          export ALCHEMY_URL=postgresql+psycopg2://moviz:moviz@localhost:5432/movizdb
+          sed -i "s|sqlalchemy.url = .*|sqlalchemy.url = $ALCHEMY_URL|" alembic.ini
+          alembic upgrade head
+
+      - name: Run tests
+        run: pytest
